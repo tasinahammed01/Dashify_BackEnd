@@ -26,6 +26,7 @@ async function run() {
     // await client.connect(); // Optional if not required for your setup
 
     const passCollection = client.db("dashify").collection("eventsCollenction");
+    const userCollection = client.db("UserProfileInfoDB").collection("UserProfileInfoCollections");
 
     // GET - read all events
     app.get("/events", async (req, res) => {
@@ -58,6 +59,97 @@ async function run() {
         res.status(500).send({ message: "Failed to delete event." });
       }
     });
+
+
+
+    // User Profile Info CRUD
+
+    // GET - read all user profiles
+    app.get("/userProfile", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
+    // POST - create a new user profile
+    app.post("/userProfile", async (req, res) => {
+      const newItem = req.body;
+      const result = await userCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    // UPDATE - update a user profile by ID
+    app.put("/userProfile/:id", async (req, res) => {
+      const userId = req.params.id;
+      const updatedUser = req.body;
+      const filter = { _id: new ObjectId(userId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: updatedUser,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    
+
+
+    // UserNote CRUD
+
+    // GET - read all user notes
+    app.get("/userNote", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
+    // POST - create a new user note  
+    app.post("/userNote", async (req, res) => {
+      const newItem = req.body;
+      const result = await userCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    // UPDATE - update a user note by ID
+    app.put("/userNote/:id", async (req, res) => {
+      const userId = req.params.id;
+      const updatedUser = req.body;
+      const filter = { _id: new ObjectId(userId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: updatedUser,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    // DELETE - remove a user note by ID
+    app.delete("/userNote/:id", async (req, res) => {
+      const userId = req.params.id;
+      try {
+        const result = await userCollection.deleteOne({
+          _id: new ObjectId(userId),
+        });
+
+        if (result.deletedCount === 1) {
+          res.status(200).send({ message: "User note deleted successfully!" });
+        } else {
+          res.status(404).send({ message: "User note not found!" });
+        }
+      } catch (error) {
+        console.error("Error deleting user note:", error);
+        res.status(500).send({ message: "Failed to delete user note." });
+      }
+    });
+    
+
+
+
+
+
+
+
+
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
